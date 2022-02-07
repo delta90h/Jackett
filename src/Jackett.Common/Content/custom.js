@@ -1,4 +1,5 @@
 var basePath = '';
+var baseUrl = '';
 
 var indexers = [];
 var configuredIndexers = [];
@@ -114,6 +115,12 @@ function loadJackettSettings() {
             basePath = '';
         }
 
+        $("#jackett-baseurloverride").val(data.baseurloverride);
+        baseUrl = data.baseurloverride;
+        if (baseUrl === null || baseUrl === undefined) {
+            baseUrl = '';
+        }
+
         api.key = data.api_key;
 
         $("#jackett-savedir").val(data.blackholedir);
@@ -130,6 +137,7 @@ function loadJackettSettings() {
         }
 
         $("#jackett-flaresolverrurl").val(data.flaresolverrurl);
+        $("#jackett-flaresolverr-maxtimeout").val(data.flaresolverr_maxtimeout);
         $("#jackett-omdbkey").val(data.omdbkey);
         $("#jackett-omdburl").val(data.omdburl);
         var password = data.password;
@@ -162,9 +170,9 @@ function reloadIndexers() {
         availableFilters = [];
         for (var i = 0; i < data.length; i++) {
             var item = data[i];
-            item.rss_host = resolveUrl(basePath + "/api/v2.0/indexers/" + item.id + "/results/torznab/api?apikey=" + api.key + "&t=search&cat=&q=");
-            item.torznab_host = resolveUrl(basePath + "/api/v2.0/indexers/" + item.id + "/results/torznab/");
-            item.potato_host = resolveUrl(basePath + "/api/v2.0/indexers/" + item.id + "/results/potato/");
+            item.rss_host = resolveUrl(baseUrl, basePath + "/api/v2.0/indexers/" + item.id + "/results/torznab/api?apikey=" + api.key + "&t=search&cat=&q=");
+            item.torznab_host = resolveUrl(baseUrl, basePath + "/api/v2.0/indexers/" + item.id + "/results/torznab/");
+            item.potato_host = resolveUrl(baseUrl, basePath + "/api/v2.0/indexers/" + item.id + "/results/potato/");
 
             if (item.last_error)
                 item.state = "error";
@@ -287,6 +295,12 @@ function displayConfiguredIndexersList(indexers) {
                 "visible": true,
                 "searchable": true,
                 "orderable": true
+            },
+            {
+                "targets": 2,
+                "visible": false,
+                "searchable": true,
+                "orderable": false
             }
         ]
     });
@@ -428,6 +442,13 @@ function displayUnconfiguredIndexersList() {
                 "targets": 6,
                 "visible": true,
                 "searchable": false,
+                "orderable": false
+            },
+            {
+                "name": "url",
+                "targets": 7,
+                "visible": false,
+                "searchable": true,
                 "orderable": false
             }
         ]
@@ -908,10 +929,14 @@ function populateSetupForm(indexerId, name, config, caps, link, alternativesitel
     configForm.modal("show");
 }
 
-function resolveUrl(url) {
-    var a = document.createElement('a');
-    a.href = url;
-    url = a.href;
+function resolveUrl(baseUrl, url) {
+    if (baseUrl != '') {
+        url = baseUrl + url;
+    }else{
+        var a = document.createElement('a');
+        a.href = url;
+        url = a.href;
+    }
     return url;
 }
 
@@ -964,7 +989,8 @@ function updateReleasesRow(row) {
         TitleLink.data("toggle", "tooltip");
         TitleLink.tooltip({
             title: TitleTooltip,
-            html: true
+            html: true,
+            placement: "auto"
         });
     }
 
@@ -1352,6 +1378,13 @@ function bindUIButtons() {
         return false;
     });
 
+    $('#api-key-copy-button').click(function () {
+        var apiKey = api.key;
+        if (apiKey !== null || apiKey !== undefined) {
+            copyToClipboard(apiKey);
+        }
+    });
+
     $('#jackett-add-indexer').click(function () {
         $("#modals").empty();
         displayUnconfiguredIndexersList();
@@ -1492,6 +1525,7 @@ function bindUIButtons() {
     $("#change-jackett-port").click(function () {
         var jackett_port = Number($("#jackett-port").val());
         var jackett_basepathoverride = $("#jackett-basepathoverride").val();
+        var jackett_baseurloverride = $("#jackett-baseurloverride").val();
         var jackett_external = $("#jackett-allowext").is(':checked');
         var jackett_update = $("#jackett-allowupdate").is(':checked');
         var jackett_prerelease = $("#jackett-prerelease").is(':checked');
@@ -1500,6 +1534,7 @@ function bindUIButtons() {
         var jackett_cache_ttl = $("#jackett-cache-ttl").val();
         var jackett_cache_max_results_per_indexer = $("#jackett-cache-max-results-per-indexer").val();
         var jackett_flaresolverr_url = $("#jackett-flaresolverrurl").val();
+        var jackett_flaresolverr_maxtimeout = $("#jackett-flaresolverr-maxtimeout").val();
         var jackett_omdb_key = $("#jackett-omdbkey").val();
         var jackett_omdb_url = $("#jackett-omdburl").val();
 
@@ -1517,11 +1552,13 @@ function bindUIButtons() {
             blackholedir: $("#jackett-savedir").val(),
             logging: jackett_logging,
             basepathoverride: jackett_basepathoverride,
+            baseurloverride: jackett_baseurloverride,
             logging: jackett_logging,
             cache_enabled: jackett_cache_enabled,
             cache_ttl: jackett_cache_ttl,
             cache_max_results_per_indexer: jackett_cache_max_results_per_indexer,
             flaresolverrurl: jackett_flaresolverr_url,
+            flaresolverr_maxtimeout: jackett_flaresolverr_maxtimeout,
             omdbkey: jackett_omdb_key,
             omdburl: jackett_omdb_url,
             proxy_type: jackett_proxy_type,

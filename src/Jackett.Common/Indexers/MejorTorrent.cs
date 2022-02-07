@@ -36,9 +36,9 @@ namespace Jackett.Common.Indexers
         private const string SearchUrl = "secciones.php";
 
         public override string[] AlternativeSiteLinks { get; protected set; } = {
-            "https://www.mejortorrentes.net/",
+            "https://www.mejortorrentes.org/",
             "https://mejortorrent.nocensor.biz/",
-            "https://mejortorrent.unblockit.tv/"
+            "https://mejortorrent.unblockit.how/"
         };
 
         public override string[] LegacySiteLinks { get; protected set; } = {
@@ -58,7 +58,9 @@ namespace Jackett.Common.Indexers
             "https://mejortorrent.nocensor.space/",
             "https://www.mejortorrentes.com/",
             "https://www.mejortorrento.info/",
-            "https://mejortorrent.nocensor.work/"
+            "https://mejortorrent.nocensor.work/",
+            "https://www.mejortorrentes.net/",
+            "https://mejortorrent.unblockit.tv/"
         };
 
         public MejorTorrent(IIndexerConfigurationService configService, WebClient w, Logger l, IProtectionService ps,
@@ -66,7 +68,7 @@ namespace Jackett.Common.Indexers
             : base(id: "mejortorrent",
                    name: "MejorTorrent",
                    description: "MejorTorrent - Hay veces que un torrent viene mejor! :)",
-                   link: "https://www.mejortorrentes.net/",
+                   link: "https://www.mejortorrentes.org/",
                    caps: new TorznabCapabilities
                    {
                        TvSearchParams = new List<TvSearchParam>
